@@ -1,0 +1,62 @@
+# =====================================================================
+#  Infrastructure du projet BatiSuivi
+#  Lance d'un seul coup : MySQL, Adminer, MinIO et Keycloak
+#  Commande :  docker compose up -d
+# =====================================================================
+services:
+
+  # ---- Base de donnees relationnelle ----
+  mysql:
+    image: mysql:8.0
+    container_name: batisuivi-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bati_suivi
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Le script SQL s'execute automatiquement au premier demarrage :
+      - ./bati_suivi.sql:/docker-entrypoint-initdb.d/01_init.sql
+
+  # ---- Interface web pour voir la base (plus simple que phpMyAdmin en Docker) ----
+  adminer:
+    image: adminer:latest
+    container_name: batisuivi-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+
+  # ---- Stockage de fichiers (plans, photos de chantier) ----
+  minio:
+    image: minio/minio:latest
+    container_name: batisuivi-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console web
+    volumes:
+      - minio_data:/data
+
+  # ---- Serveur d'authentification / gestion des identites ----
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: batisuivi-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "8085:8080"   # Console : http://localhost:8085
+
+volumes:
+  mysql_data:
+  minio_data:
