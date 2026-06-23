@@ -3,14 +3,12 @@ import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 
-
 function Login() {
   // Les "états" qui mémorisent ce que l'utilisateur tape
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
   const [erreur, setErreur] = useState("");
-  const [utilisateur, setUtilisateur] = useState(null);
 
   // Fonction appelée quand on clique sur "Se connecter"
   const seConnecter = async (e) => {
@@ -20,16 +18,16 @@ function Login() {
       // On envoie email + mot de passe au back-end
       const reponse = await api.post("/auth/login", { email, motDePasse });
 
-      // On stocke le jeton pour les prochaines requêtes
+      // On stocke le jeton et l'utilisateur pour les prochaines requêtes
       localStorage.setItem("token", reponse.data.token);
       localStorage.setItem("utilisateur", JSON.stringify(reponse.data.utilisateur));
       navigate("/dashboard");
-    } catch (err) {
+    } catch {
       setErreur("Email ou mot de passe incorrect");
     }
   };
 
-  // Sinon, on affiche le formulaire de connexion
+  // On affiche le formulaire de connexion
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontFamily: "sans-serif" }}>
       <form onSubmit={seConnecter} style={{ width: 320, padding: 30, border: "1px solid #ddd", borderRadius: 10 }}>
