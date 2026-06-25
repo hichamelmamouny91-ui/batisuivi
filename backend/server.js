@@ -10,7 +10,7 @@ const tachesRoutes = require("./routes/taches");
 const authRoutes = require("./routes/auth");
 const projetsRoutes = require("./routes/projets");
 const verifierToken = require("./middleware/auth"); // ou verifierToken selon ton nom
-
+const documentsRoutes = require("./routes/documents");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/projets", projetsRoutes);
+app.use("/api/documents", documentsRoutes);
 
 // --- Démarrage du serveur ---
 const PORT = 5000;

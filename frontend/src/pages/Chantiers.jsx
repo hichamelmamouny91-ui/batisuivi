@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import Layout from "../components/Layout";
+import Badge from "../components/Badge";
 
 function Chantiers() {
   const [chantiers, setChantiers] = useState([]);
@@ -116,7 +117,7 @@ function Chantiers() {
                 <h3 style={{ fontSize: 15, margin: 0 }}>{ch.nom}</h3>
                 <p style={{ fontSize: 12, color: "#6a7585", margin: "4px 0" }}>{ch.localisation} · Projet : {ch.nomProjet}</p>
               </div>
-              <span style={{ fontSize: 11, padding: "3px 9px", borderRadius: 20, background: "#FBEAD2", color: "#b5701f" }}>{ch.statut}</span>
+                <Badge statut={ch.statut} />
             </div>
 
             {/* Barre d'avancement */}

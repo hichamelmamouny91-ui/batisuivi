@@ -16,6 +16,7 @@ function Layout({ children, titre }) {
     { chemin: "/projets", label: "Projets" },
     { chemin: "/chantiers", label: "Chantiers" },
     { chemin: "/taches", label: "Tâches" },
+    { chemin: "/documents", label: "Documents" },
   ];
 
   return (

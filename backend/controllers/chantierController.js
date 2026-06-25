@@ -74,15 +74,27 @@ exports.supprimerChantier = async (req, res) => {
   }
 };
 
-// Mettre à jour uniquement l'avancement d'un chantier
+// Mettre à jour l'avancement d'un chantier (et ajuster son statut automatiquement)
 exports.modifierAvancement = async (req, res) => {
   const { avancement } = req.body;
   try {
+    // On détermine le statut automatiquement selon l'avancement
+    let statut;
+    if (avancement >= 100) {
+      statut = "Termine";
+    } else if (avancement <= 0) {
+      statut = "Planifie";
+    } else {
+      statut = "En cours";
+    }
+
+    // On met à jour l'avancement ET le statut en même temps
     await pool.query(
-      "UPDATE chantier SET avancement = ? WHERE idChantier = ?",
-      [avancement, req.params.id]
+      "UPDATE chantier SET avancement = ?, statut = ? WHERE idChantier = ?",
+      [avancement, statut, req.params.id]
     );
-    res.json({ message: "Avancement mis à jour" });
+
+    res.json({ message: "Avancement mis à jour", statut });
   } catch (erreur) {
     console.error(erreur);
     res.status(500).json({ erreur: "Erreur serveur" });
