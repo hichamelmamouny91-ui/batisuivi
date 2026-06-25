@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Layout from "../components/Layout";
 import Badge from "../components/Badge";
+import { aLeRole } from "../auth";
 
 function Projets() {
   const [projets, setProjets] = useState([]);
@@ -90,12 +91,14 @@ function Projets() {
 
   return (
     <Layout titre="Projets">
-      <button
-        onClick={() => (afficherFormulaire ? setAfficherFormulaire(false) : ouvrirCreation())}
-        style={{ marginBottom: 16, padding: "9px 16px", background: "#E8841A", color: "white", border: "none", borderRadius: 6, cursor: "pointer" }}
-      >
-        {afficherFormulaire ? "Annuler" : "+ Nouveau projet"}
-      </button>
+      {aLeRole("Administrateur", "Chef de projet") && (
+        <button
+          onClick={() => (afficherFormulaire ? setAfficherFormulaire(false) : ouvrirCreation())}
+          style={{ marginBottom: 16, padding: "9px 16px", background: "#E8841A", color: "white", border: "none", borderRadius: 6, cursor: "pointer" }}
+        >
+          {afficherFormulaire ? "Annuler" : "+ Nouveau projet"}
+        </button>
+      )}
 
       {/* Formulaire (création ou modification) */}
       {afficherFormulaire && (
@@ -146,12 +149,21 @@ function Projets() {
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.nomClient}</td>
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}><Badge statut={p.statut} /></td>
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>
-                  <button onClick={() => ouvrirModification(p)} style={{ padding: "5px 10px", marginRight: 6, background: "#1E3A5F", color: "white", border: "none", borderRadius: 5, cursor: "pointer" }}>
-                    Modifier
-                  </button>
-                  <button onClick={() => supprimerProjet(p.idProjet)} style={{ padding: "5px 10px", background: "#D9534F", color: "white", border: "none", borderRadius: 5, cursor: "pointer" }}>
-                    Supprimer
-                  </button>
+                  <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>
+                  {aLeRole("Administrateur", "Chef de projet") && (
+                    <button onClick={() => ouvrirModification(p)} style={{ padding: "5px 10px", marginRight: 6, background: "#1E3A5F", color: "white", border: "none", borderRadius: 5, cursor: "pointer" }}>
+                      Modifier
+                    </button>
+                  )}
+                  {aLeRole("Administrateur") && (
+                    <button onClick={() => supprimerProjet(p.idProjet)} style={{ padding: "5px 10px", background: "#D9534F", color: "white", border: "none", borderRadius: 5, cursor: "pointer" }}>
+                      Supprimer
+                    </button>
+                  )}
+                  {!aLeRole("Administrateur", "Chef de projet") && (
+                    <span style={{ fontSize: 12, color: "#9aa5b5" }}>Lecture seule</span>
+                  )}
+                </td>
                 </td>
               </tr>
             ))}

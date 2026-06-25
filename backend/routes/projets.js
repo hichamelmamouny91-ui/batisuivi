@@ -1,14 +1,17 @@
-// routes/projets.js — aiguillage des URLs vers le contrôleur
+// routes/projets.js — aiguillage avec contrôle des rôles
 const express = require("express");
 const router = express.Router();
-const verifierToken = require("../middleware/auth"); // adapte si ton fichier a un autre nom
+const verifierToken = require("../middleware/auth"); // adapte si besoin
+const verifierRole = require("../middleware/verifierRole");
 const projetController = require("../controllers/projetController");
 
-// Chaque URL pointe vers une fonction du contrôleur
+// Lecture : tous les utilisateurs connectés
 router.get("/", verifierToken, projetController.getTousProjets);
 router.get("/:id", verifierToken, projetController.getProjetParId);
-router.post("/", verifierToken, projetController.creerProjet);
-router.put("/:id", verifierToken, projetController.modifierProjet);
-router.delete("/:id", verifierToken, projetController.supprimerProjet);
+
+// Création / modification / suppression : Admin ou Chef de projet seulement
+router.post("/", verifierToken, verifierRole("Administrateur", "Chef de projet"), projetController.creerProjet);
+router.put("/:id", verifierToken, verifierRole("Administrateur", "Chef de projet"), projetController.modifierProjet);
+router.delete("/:id", verifierToken, verifierRole("Administrateur"), projetController.supprimerProjet);
 
 module.exports = router;

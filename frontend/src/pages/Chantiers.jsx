@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Layout from "../components/Layout";
 import Badge from "../components/Badge";
+import { aLeRole } from "../auth";
 
 function Chantiers() {
   const [chantiers, setChantiers] = useState([]);
@@ -75,12 +76,14 @@ function Chantiers() {
 
   return (
     <Layout titre="Chantiers">
-      <button
-        onClick={() => setAfficherFormulaire(!afficherFormulaire)}
-        style={{ marginBottom: 16, padding: "9px 16px", background: "#E8841A", color: "white", border: "none", borderRadius: 6, cursor: "pointer" }}
-      >
-        {afficherFormulaire ? "Annuler" : "+ Nouveau chantier"}
-      </button>
+            {aLeRole("Administrateur", "Chef de projet") && (
+        <button
+          onClick={() => setAfficherFormulaire(!afficherFormulaire)}
+          style={{ marginBottom: 16, padding: "9px 16px", background: "#E8841A", color: "white", border: "none", borderRadius: 6, cursor: "pointer" }}
+        >
+          {afficherFormulaire ? "Annuler" : "+ Nouveau chantier"}
+        </button>
+      )}
 
       {/* Formulaire de création */}
       {afficherFormulaire && (
@@ -142,12 +145,14 @@ function Chantiers() {
               />
             </div>
 
-            <button
-              onClick={() => supprimerChantier(ch.idChantier)}
-              style={{ marginTop: 10, padding: "5px 10px", background: "#D9534F", color: "white", border: "none", borderRadius: 5, cursor: "pointer", fontSize: 12 }}
-            >
-              Supprimer
-            </button>
+            {aLeRole("Administrateur") && (
+              <button
+                onClick={() => supprimerChantier(ch.idChantier)}
+                style={{ marginTop: 10, padding: "5px 10px", background: "#D9534F", color: "white", border: "none", borderRadius: 5, cursor: "pointer", fontSize: 12 }}
+              >
+                Supprimer
+              </button>
+            )}
           </div>
         ))}
       </div>

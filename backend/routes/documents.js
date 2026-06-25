@@ -1,15 +1,18 @@
-// routes/documents.js — aiguillage des URLs vers le contrôleur
+// routes/documents.js — aiguillage avec contrôle des rôles
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const verifierToken = require("../middleware/auth"); // adapte si besoin
+const verifierToken = require("../middleware/auth");
+const verifierRole = require("../middleware/verifierRole");
 const documentController = require("../controllers/documentController");
 
-// multer garde le fichier en mémoire avant de l'envoyer à MinIO
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Lecture / consultation : tous les connectés
 router.get("/", verifierToken, documentController.getTousDocuments);
-router.post("/", verifierToken, upload.single("fichier"), documentController.uploaderDocument);
 router.get("/:id/lien", verifierToken, documentController.telechargerDocument);
+
+// Envoi d'un document : Admin, Chef de projet ou Ingénieur
+router.post("/", verifierToken, verifierRole("Administrateur", "Chef de projet", "Ingenieur"), upload.single("fichier"), documentController.uploaderDocument);
 
 module.exports = router;

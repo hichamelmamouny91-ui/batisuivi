@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Layout from "../components/Layout";
 import Badge from "../components/Badge";
+import { aLeRole } from "../auth";
 
 function Taches() {
   const [taches, setTaches] = useState([]);
@@ -74,12 +75,14 @@ function Taches() {
 
   return (
     <Layout titre="Tâches">
-      <button
-        onClick={() => setAfficherFormulaire(!afficherFormulaire)}
-        style={{ marginBottom: 16, padding: "9px 16px", background: "#E8841A", color: "white", border: "none", borderRadius: 6, cursor: "pointer" }}
-      >
-        {afficherFormulaire ? "Annuler" : "+ Nouvelle tâche"}
-      </button>
+      {aLeRole("Administrateur", "Chef de projet") && (
+        <button
+          onClick={() => setAfficherFormulaire(!afficherFormulaire)}
+          style={{ marginBottom: 16, padding: "9px 16px", background: "#E8841A", color: "white", border: "none", borderRadius: 6, cursor: "pointer" }}
+        >
+          {afficherFormulaire ? "Annuler" : "+ Nouvelle tâche"}
+        </button>
+      )}
 
       {/* Formulaire de création */}
       {afficherFormulaire && (
@@ -126,7 +129,9 @@ function Taches() {
                   {col.cle !== "Termine" && (
                     <button onClick={() => changerStatut(t.idTache, "Termine")} style={miniBtn}>Terminé →</button>
                   )}
-                  <button onClick={() => supprimerTache(t.idTache)} style={{ ...miniBtn, color: "#D9534F", borderColor: "#D9534F" }}>✕</button>
+                  {aLeRole("Administrateur", "Chef de projet") && (
+                    <button onClick={() => supprimerTache(t.idTache)} style={{ ...miniBtn, color: "#D9534F", borderColor: "#D9534F" }}>✕</button>
+                  )}
                 </div>
               </div>
             ))}

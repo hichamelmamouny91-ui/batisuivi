@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import Layout from "../components/Layout";
+import { aLeRole } from "../auth";
 
 function Documents() {
   const [documents, setDocuments] = useState([]);
@@ -69,7 +70,8 @@ function Documents() {
   return (
     <Layout titre="Documents">
       {/* Formulaire d'upload */}
-      <form onSubmit={uploader} style={{ background: "white", border: "1px solid #e3e8ef", borderRadius: 12, padding: 18, marginBottom: 20, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+       {aLeRole("Administrateur", "Chef de projet", "Ingenieur") && (
+        <form onSubmit={uploader} style={{ background: "white", border: "1px solid #e3e8ef", borderRadius: 12, padding: 18, marginBottom: 20, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <input type="file" onChange={(e) => setFichier(e.target.files[0])} style={champStyle} required />
         <label style={{ fontSize: 13 }}>Projet :</label>
         <input type="number" value={idProjet} onChange={(e) => setIdProjet(e.target.value)} style={{ ...champStyle, width: 70 }} />
@@ -77,7 +79,7 @@ function Documents() {
           {enCours ? "Envoi..." : "Envoyer le document"}
         </button>
       </form>
-
+      )}
       {/* Liste des documents */}
       <div style={{ background: "white", border: "1px solid #e3e8ef", borderRadius: 12, padding: 18 }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
