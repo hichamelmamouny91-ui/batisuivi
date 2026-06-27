@@ -1,15 +1,26 @@
 // controllers/chantierController.js — logique métier des chantiers
 const pool = require("../db");
 
-// Récupérer tous les chantiers (avec le nom du projet associé)
+// Récupérer tous les chantiers, avec l'avancement calculé à partir des tâches
 exports.getTousChantiers = async (req, res) => {
   try {
     const [chantiers] = await pool.query(
-      `SELECT ch.*, p.nom AS nomProjet
+      `SELECT ch.*, p.nom AS nomProjet,
+        (SELECT COUNT(*) FROM tache t WHERE t.idChantier = ch.idChantier) AS totalTaches,
+        (SELECT COUNT(*) FROM tache t WHERE t.idChantier = ch.idChantier AND t.statut = 'Termine') AS tachesTerminees
        FROM chantier ch
        JOIN projet p ON ch.idProjet = p.idProjet`
     );
-    res.json(chantiers);
+
+    // On calcule le pourcentage automatique pour chaque chantier
+    const chantiersAvecCalcul = chantiers.map((ch) => {
+      const avancementCalcule = ch.totalTaches > 0
+        ? Math.round((ch.tachesTerminees / ch.totalTaches) * 100)
+        : 0;
+      return { ...ch, avancementCalcule };
+    });
+
+    res.json(chantiersAvecCalcul);
   } catch (erreur) {
     console.error(erreur);
     res.status(500).json({ erreur: "Erreur serveur" });

@@ -16,16 +16,22 @@ function Dashboard() {
     api.get("/projets", config).then((r) => setProjets(r.data)).catch((e) => console.error(e));
     api.get("/chantiers", config).then((r) => setChantiers(r.data)).catch((e) => console.error(e));
     api.get("/taches", config).then((r) => setTaches(r.data)).catch((e) => console.error(e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Statistiques calculées
-  const projetsEnCours = projets.filter((p) => p.statut === "En cours").length;
+  const projetsEnCours = projets.filter((p) => p.avancementCalcule > 0 && p.avancementCalcule < 100).length;
   const tachesEnCours = taches.filter((t) => t.statut === "En cours").length;
   const avancementMoyen = chantiers.length
-    ? Math.round(chantiers.reduce((s, ch) => s + ch.avancement, 0) / chantiers.length)
+    ? Math.round(chantiers.reduce((s, ch) => s + ch.avancementCalcule, 0) / chantiers.length)
     : 0;
 
-  // Les cartes de statistiques
+  // Détermine le statut d'un projet à partir de son avancement calculé
+  const statutProjet = (p) =>
+    p.avancementCalcule >= 100 ? "Termine"
+    : p.avancementCalcule > 0 ? "En cours"
+    : "Planifie";
+
   const stats = [
     { label: "Projets", valeur: projets.length, sousLabel: `${projetsEnCours} en cours`, couleur: "#2C5282" },
     { label: "Chantiers", valeur: chantiers.length, sousLabel: "actifs", couleur: "#E8841A" },
@@ -55,6 +61,7 @@ function Dashboard() {
               <tr style={{ color: "#6a7585", textAlign: "left" }}>
                 <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Code</th>
                 <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Nom</th>
+                <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Avancement</th>
                 <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Statut</th>
               </tr>
             </thead>
@@ -63,7 +70,8 @@ function Dashboard() {
                 <tr key={p.idProjet}>
                   <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.code}</td>
                   <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.nom}</td>
-                  <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}><Badge statut={p.statut} /></td>
+                  <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.avancementCalcule}%</td>
+                  <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}><Badge statut={statutProjet(p)} /></td>
                 </tr>
               ))}
             </tbody>
@@ -77,10 +85,10 @@ function Dashboard() {
             <div key={ch.idChantier} style={{ marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                 <span>{ch.nom}</span>
-                <strong>{ch.avancement}%</strong>
+                <strong>{ch.avancementCalcule}%</strong>
               </div>
               <div style={{ height: 7, background: "#EAEEF3", borderRadius: 20, overflow: "hidden" }}>
-                <div style={{ width: `${ch.avancement}%`, height: "100%", background: "#E8841A", borderRadius: 20 }}></div>
+                <div style={{ width: `${ch.avancementCalcule}%`, height: "100%", background: "#E8841A", borderRadius: 20 }}></div>
               </div>
             </div>
           ))}

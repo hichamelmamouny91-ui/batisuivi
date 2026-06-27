@@ -137,6 +137,7 @@ function Projets() {
               <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Code</th>
               <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Nom</th>
               <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Client</th>
+              <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Avancement</th>
               <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Statut</th>
               <th style={{ padding: 8, borderBottom: "1px solid #e3e8ef" }}>Actions</th>
             </tr>
@@ -147,7 +148,21 @@ function Projets() {
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.code}</td>
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.nom}</td>
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>{p.nomClient}</td>
-                <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}><Badge statut={p.statut} /></td>
+                <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 80, height: 7, background: "#EAEEF3", borderRadius: 20, overflow: "hidden" }}>
+                      <div style={{ width: `${p.avancementCalcule}%`, height: "100%", background: "#E8841A", borderRadius: 20 }}></div>
+                    </div>
+                    <span style={{ fontSize: 12 }}>{p.avancementCalcule}%</span>
+                  </div>
+                </td>
+                <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>
+                  <Badge statut={
+                    p.avancementCalcule >= 100 ? "Termine"
+                    : p.avancementCalcule > 0 ? "En cours"
+                    : "Planifie"
+                  } />
+                </td>
                 <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>
                   <td style={{ padding: 10, borderBottom: "1px solid #eef2f7" }}>
                   {aLeRole("Administrateur", "Chef de projet") && (

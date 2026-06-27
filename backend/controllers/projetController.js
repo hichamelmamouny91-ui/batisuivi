@@ -1,7 +1,7 @@
 // controllers/projetController.js — logique métier des projets
 const pool = require("../db");
 
-// Récupérer tous les projets
+// Récupérer tous les projets, avec l'avancement calculé (moyenne des chantiers)
 exports.getTousProjets = async (req, res) => {
   try {
     const [projets] = await pool.query(
@@ -9,6 +9,32 @@ exports.getTousProjets = async (req, res) => {
        FROM projet p
        JOIN client c ON p.idClient = c.idClient`
     );
+
+    // Pour chaque projet, on calcule l'avancement moyen de ses chantiers
+    for (const projet of projets) {
+      // On récupère les chantiers du projet avec leur avancement (basé sur leurs tâches)
+      const [chantiers] = await pool.query(
+        `SELECT ch.idChantier,
+          (SELECT COUNT(*) FROM tache t WHERE t.idChantier = ch.idChantier) AS totalTaches,
+          (SELECT COUNT(*) FROM tache t WHERE t.idChantier = ch.idChantier AND t.statut = 'Termine') AS tachesTerminees
+         FROM chantier ch
+         WHERE ch.idProjet = ?`,
+        [projet.idProjet]
+      );
+
+      if (chantiers.length === 0) {
+        projet.avancementCalcule = 0;
+      } else {
+        // Avancement de chaque chantier = % de tâches terminées
+        const avancements = chantiers.map((ch) =>
+          ch.totalTaches > 0 ? (ch.tachesTerminees / ch.totalTaches) * 100 : 0
+        );
+        // Moyenne des avancements des chantiers
+        const moyenne = avancements.reduce((s, a) => s + a, 0) / chantiers.length;
+        projet.avancementCalcule = Math.round(moyenne);
+      }
+    }
+
     res.json(projets);
   } catch (erreur) {
     console.error(erreur);

@@ -44,24 +44,6 @@ function Chantiers() {
     }
   };
 
-// Pendant qu'on glisse : on met à jour l'affichage localement (fluide, sans appel serveur)
-  const glisserAvancement = (idChantier, nouvelAvancement) => {
-    setChantiers((liste) =>
-      liste.map((ch) =>
-        ch.idChantier === idChantier ? { ...ch, avancement: Number(nouvelAvancement) } : ch
-      )
-    );
-  };
-
-  // Quand on relâche : on enregistre dans la base de données
-  const enregistrerAvancement = async (chantier) => {
-    try {
-      await api.patch(`/chantiers/${chantier.idChantier}/avancement`, { avancement: chantier.avancement }, config);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const supprimerChantier = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer ce chantier ?")) return;
     try {
@@ -120,31 +102,26 @@ function Chantiers() {
                 <h3 style={{ fontSize: 15, margin: 0 }}>{ch.nom}</h3>
                 <p style={{ fontSize: 12, color: "#6a7585", margin: "4px 0" }}>{ch.localisation} · Projet : {ch.nomProjet}</p>
               </div>
-                <Badge statut={ch.statut} />
+                <Badge statut={
+                ch.avancementCalcule >= 100 ? "Termine"
+                : ch.avancementCalcule > 0 ? "En cours"
+                : "Planifie"
+              } />
             </div>
 
-            {/* Barre d'avancement */}
+           {/* Avancement calculé automatiquement à partir des tâches */}
             <div style={{ marginTop: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                 <span>Avancement</span>
-                <strong>{ch.avancement}%</strong>
+                <strong>{ch.avancementCalcule}%</strong>
               </div>
               <div style={{ height: 8, background: "#EAEEF3", borderRadius: 20, overflow: "hidden" }}>
-                <div style={{ width: `${ch.avancement}%`, height: "100%", background: "#E8841A", borderRadius: 20 }}></div>
+                <div style={{ width: `${ch.avancementCalcule}%`, height: "100%", background: "#E8841A", borderRadius: 20 }}></div>
+              </div>
+              <div style={{ fontSize: 11, color: "#9aa5b5", marginTop: 4 }}>
+                {ch.tachesTerminees} / {ch.totalTaches} tâches terminées
               </div>
             </div>
-
-            {/* Mise à jour rapide de l'avancement */}
-            <div style={{ marginTop: 12 }}>
-              <input
-                type="range" min="0" max="100" value={ch.avancement}
-                onChange={(e) => glisserAvancement(ch.idChantier, e.target.value)}
-                onMouseUp={() => enregistrerAvancement(ch)}
-                onTouchEnd={() => enregistrerAvancement(ch)}
-                style={{ width: "100%" }}
-              />
-            </div>
-
             {aLeRole("Administrateur") && (
               <button
                 onClick={() => supprimerChantier(ch.idChantier)}
