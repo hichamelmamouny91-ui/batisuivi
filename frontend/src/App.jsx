@@ -7,6 +7,7 @@ import Chantiers from "./pages/Chantiers";
 import Taches from "./pages/Taches";
 import Documents from "./pages/Documents";
 import RouteProtegee from "./components/RouteProtegee";
+import Utilisateurs from "./pages/Utilisateurs";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         <Route path="/chantiers" element={<RouteProtegee><Chantiers /></RouteProtegee>} />
         <Route path="/taches" element={<RouteProtegee><Taches /></RouteProtegee>} />
         <Route path="/documents" element={<RouteProtegee><Documents /></RouteProtegee>} />
-
+        <Route path="/utilisateurs" element={<RouteProtegee><Utilisateurs /></RouteProtegee>} />
         {/* Toute autre adresse renvoie vers la connexion */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

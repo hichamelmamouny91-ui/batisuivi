@@ -4,6 +4,7 @@ const cors = require("cors");
 const pool = require("./db");
 const chantiersRoutes = require("./routes/chantiers");
 const tachesRoutes = require("./routes/taches");
+const utilisateursRoutes = require("./routes/utilisateurs");
 
 
 // --- Tous les imports de routes et middleware, regroupés en haut ---
@@ -16,6 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/chantiers", chantiersRoutes);
 app.use("/api/taches", tachesRoutes);
+app.use("/api/utilisateurs", utilisateursRoutes);
+
 
 // --- Les routes ---
 app.get("/", (req, res) => {

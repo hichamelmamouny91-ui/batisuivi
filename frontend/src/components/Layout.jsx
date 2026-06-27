@@ -1,6 +1,6 @@
 // src/components/Layout.jsx — menu latéral + barre du haut
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
+import { aLeRole } from "../auth";
 function Layout({ children, titre }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -11,13 +11,18 @@ function Layout({ children, titre }) {
     navigate("/login");
   };
 
-  const menu = [
-    { chemin: "/dashboard", label: "Tableau de bord" },
-    { chemin: "/projets", label: "Projets" },
-    { chemin: "/chantiers", label: "Chantiers" },
-    { chemin: "/taches", label: "Tâches" },
-    { chemin: "/documents", label: "Documents" },
+// Chaque entrée indique les rôles autorisés à la voir
+  const menuComplet = [
+    { chemin: "/dashboard", label: "Tableau de bord", roles: ["Administrateur", "Chef de projet", "Ingenieur", "Technicien"] },
+    { chemin: "/projets", label: "Projets", roles: ["Administrateur", "Chef de projet", "Ingenieur", "Technicien"] },
+    { chemin: "/chantiers", label: "Chantiers", roles: ["Administrateur", "Chef de projet", "Ingenieur", "Technicien"] },
+    { chemin: "/taches", label: "Tâches", roles: ["Administrateur", "Chef de projet", "Ingenieur", "Technicien"] },
+    { chemin: "/documents", label: "Documents", roles: ["Administrateur", "Chef de projet", "Ingenieur", "Technicien"] },
+    { chemin: "/utilisateurs", label: "Utilisateurs", roles: ["Administrateur"] },
   ];
+
+  // On ne garde que les entrées autorisées pour le rôle de l'utilisateur connecté
+  const menu = menuComplet.filter((item) => aLeRole(...item.roles));
 
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "sans-serif" }}>
